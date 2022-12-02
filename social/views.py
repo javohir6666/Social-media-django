@@ -38,7 +38,7 @@ class PostDetailView(LoginRequiredMixin, View):
     def get(self, request, pk, *args, **kwargs):
         post = Post.objects.get(pk=pk)
         form = CommentForm()
-        comments = Comment.objects.filter(post=post).order_by('-created_at')
+        comments = Comment.objects.filter(post=post).order_by('created_at')
 
         context = {
             'post': post,

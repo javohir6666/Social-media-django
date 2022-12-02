@@ -10,48 +10,75 @@
     </div>
     <div class="row justify-content-center mt-3">
         <div class="col-md-5 col-sm-12 border-bottom">
-            <span class="alert alert-info"><i class="fa fa-user-circle" aria-hidden="true"></i>&nbsp;<strong>{{post.author}}</strong></span>
+            <div class="">{% if post.author.profile.picture %}<img src="{{post.author.profile.picture.url}}" class="rounded-circle" width="50" height="50">{% endif %}&nbsp;<strong>{{post.author}}</strong></div>
             <br>
             <br>
             <p class="alert alert-info">
                 {{post.body}}
             </p>
             <span class="text-muted"><i class="fas fa-clock"></i>&nbsp;{{post.created_at}}</span>
+            <div class="d-flex flex-row">
+                <form method="POST" action="{% url 'like' post.pk %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.path }}">
+                    <button type="submit" class="btn btn-transparent">
+                        <i class="far fa-thumbs-up">&nbsp;<span>{{post.like.all.count}}</span></i>
+                    </button>
+                </form>
+                <form method="POST" action="{% url 'dislike' post.pk %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.path }}">
+                    <button type="submit" class="btn btn-transparent">
+                        <i class="far fa-thumbs-down">&nbsp;<span>{{post.dislikes.all.count}}</span></i>
+                    </button>
+                </form>
+                {% if request.user == post.author %}
+                <a class="btn btn-transparent" href="{% url 'post-delete' post.pk %}"><i class="fa fa-trash"></i></a>
+                <a class="btn btn-transparent" href="{% url 'post-edit' post.pk %}"><i class="fa fa-pencil"></i></a>
+                {% endif %}
+            </div>
         </div>
     </div>
     <hr><br>
-    <div class="alert alert-dark text-center"><span class=""><i class="fa fa-comment" aria-hidden="true"></i>&nbsp;Comments</span></div><br>
+    <div class="text-center" style="background:#F2F8FD;"><span class=""><i class="fa fa-comment" aria-hidden="true"></i>&nbsp;Comments</span></div><br>
     {% for comm in comments %}
     <div class="row justify-content-center mt-3">
-
-        <!-- dropdown menu  -->
-            <div class="flex-shrink-0 dropdown d-flex justify-content-end">
-                <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fa fa-bars" aria-hidden="true"></i>
-                </a>
-                {% if request.user == comm.author%}
-                <ul class="dropdown-menu text-small shadow" style="">
-                    <li><a class="dropdown-item" href="{% url 'comment-delete' post.pk comm.pk  %}">Delete comment</a></li>
-                </ul>
-                {% endif %}
-            </div>
-        <!-- END dropdown menu  -->
-
-        <div class="col-md-5 col-sm-12 border-bottom">
+        <span class="text-muted text-center">{{comm.created_at|date:"SHORT_DATE_FORMAT"}}</span>
+        <div class="d-flex flex col-md-5 col-sm-12 border-bottom">
             {% if request.user == comm.author%}
-            <span class="alert alert-info"><i class="fa fa-user-circle" aria-hidden="true"></i>&nbsp;<strong>You!</strong></span>
+            <div class="alert alert-danger " style="border-radius: 47px;margin-left: auto;">
+                <!-- dropdown menu  -->
+                <div class="dropdown d-flex justify-content-end">
+                    <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"></a>
+                    {% if request.user == comm.author%}
+                    <ul class="dropdown-menu text-small shadow" style="">
+                        <li><a class="dropdown-item" href="{% url 'comment-delete' post.pk comm.pk  %}">Delete comment</a></li>
+                    </ul>
+                    {% endif %}
+                </div>
+                <!-- END dropdown menu  -->
+                {% if request.user.profile.picture %}
+                <img src="{{request.user.profile.picture.url}}" style="margin-left:auto;" class="rounded-circle" width="30" height="30">
+                {% endif %}
+                &nbsp;<b>You!</b>
+                <p>
+                    {{comm.comment}}
+                </p>
+            <div class="text-end">
+                <span class="text-muted"><i class="fas fa-clock"></i>&nbsp;{{comm.created_at|time:"h:i "}}</span>
+            </div>
             {% else %}
-            <span class="alert alert-danger"><i class="fa fa-user-circle" aria-hidden="true"></i>&nbsp;<strong>{{comm.author}}</strong></span>
+            <div class="alert alert-info" style="border-radius: 47px;">
+                {% if request.user.profile.picture %}
+                <img src="{{request.user.profile.picture.url}}" class="rounded-circle" width="30" height="30">
+                {% endif %}
+                &nbsp;<b>{{comm.author}}</b>
+                <p>
+                    {{comm.comment}}
+                </p>
+                <span class="text-muted"><i class="fas fa-clock"></i>&nbsp;{{comm.created_at|time:"h:i "}}</span>
+            </div>
             {% endif %}
-            <br>
-            <br>
-            <p class="alert alert-danger">
-                {{comm.comment}}
-            </p>
-            {% if request.user == comm.author %}
-            <a href="{% url 'comment-delete' post.pk comm.pk %}"><i class="fa fa-trash" aria-hidden="true"></i></a>
-            {% endif %}
-            <span class="text-muted"><i class="fas fa-clock"></i>&nbsp;{{comm.created_at}}</span>
         </div>
     </div>
     {% endfor %}

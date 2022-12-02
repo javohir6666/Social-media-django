@@ -7,6 +7,9 @@
   </div>
   <div class="row justify-content-center mt-5">
     <div class="card shadow-sm col-md-8 col-sm-12 border-bottom px-5 pt-3">
+      {% if request.user == user %}
+      <div class="text-end"><a href="{% url 'profile-edit' profile.pk %}"><i class="fas fa-edit"></i></a></div>
+      {% endif %}
       {% if profile.picture %}
       <img
         src="{{profile.picture.url }}"
@@ -15,35 +18,40 @@
         height="100"
         alt="{{profile.name}}"
       />
-      {% endif %} {% if profile.name %}
-      <span class="text-muted"
-        ><i class="fa fa-user" aria-hidden="true"></i>&nbsp;Name:
-      </span>
-      <h6>{{profile.name}}</h6>
-      {% if profile.user == user %}
-      <a href="{% url 'profile-edit' profile.pk %}"><i class="fas fa-edit"></i></a>
+      {% endif %} 
+
+      {% if profile.name %}
+      <span class="mt-4 text-muted"><i class="fa fa-user"></i>&nbsp;Name: <span class="text-dark"><b>{{profile.name}}</b></span></span>
       {% endif %}
-      {% endif %} <hr> {% if profile.location %}
-      <span class="text-muted"
-        ><i class="fa fa-location-arrow" aria-hidden="true"></i>&nbsp;Location:
+      <hr> 
+      
+      {% if profile.location %}
+      <span class="text-muted"><i class="fa fa-location-arrow"></i>&nbsp;Location:
+        <span class="text-dark">{{profile.location}}
+        </span>
       </span>
-      <p>{{profile.location}}</p>
-      {% endif %}  <hr> {% if profile.birh_date %}
-      <span class="text-muted"
-        ><i class="fa fa-calendar" aria-hidden="true"></i>&nbsp;Birthday:
-      </span>
-      <p>{{profile.birh_date}}</p> <hr>
+      
+      {% endif %}  
+      
+      <hr> 
+      
+      {% if profile.birh_date %}
+      <span class="text-muted"><i class="fa fa-calendar"></i>&nbsp;Birthday:
+        <span class="text-dark"> {{profile.birh_date}}</span></span>
+      
+      <hr>
       {% endif %} {% if profile.bio %}
       <span class="text-muted"
-        ><i class="fa fa-book" aria-hidden="true"></i>&nbsp;Biography:
+        ><i class="fa fa-book"></i>&nbsp;Biography:
       </span>
       <p class=" ">{{profile.bio}}</p>
       {% endif %}
       <hr>
       <!-- Start Followers  -->
       <div class="row d-flex mb-3">
-        <p><span class="text-muted"><i class="fa fa-user-plus" aria-hidden="true"></i>&nbsp;Followers: </span>{{number_of_followers}}</p>
+        <p><span class="text-muted"><i class="fa fa-user-plus"></i>&nbsp;Followers: </span>{{number_of_followers}}</p>
         {% if user == request.user %}
+        {% for follower in followers %}<p> {{follower.profile.user.username}} </p>{% endfor %}
         {% else %}
         {% if is_following %}
         <form method="POST" action="{% url 'remove-follower' profile.pk %}">
@@ -69,28 +77,38 @@
   <div class="row justify-content-center mt-5">
     <div class="col-md-8 col-sm-12 border-bottom">
       <p>
-        <i class="fa fa-user" aria-hidden="true"></i>
+        <i class="fa fa-user"></i>
         &nbsp;<strong
           ><a href="#" class="text-decoration-none">{{post.author}}</a></strong
         >
         &nbsp;
         <span class="text-muted">
-          <i class="fa fa-clock" aria-hidden="true"> </i
+          <i class="fa fa-clock"> </i
           >&nbsp;{{post.created_at}}</span
         >
       </p>
       <p>{{post.body|safe|slice:50}}</p>
-      <a href="{% url 'post-detail' post.pk %}"
-        ><i class="fa fa-commenting" aria-hidden="true"></i
-      ></a>
-      {% if request.user == post.author %}
-      <a href="{% url 'post-delete' post.pk %}"
-        ><i class="fa fa-trash" aria-hidden="true"></i
-      ></a>
-      <a href="{% url 'post-edit' post.pk %}"
-        ><i class="fa fa-pencil" aria-hidden="true"></i
-      ></a>
-      {% endif %}
+      <div class="d-flex flex-row">
+        <form method="POST" action="{% url 'like' post.pk %}">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.path }}">
+            <button type="submit" class="btn btn-transparent">
+                <i class="far fa-thumbs-up">&nbsp;<span>{{post.like.all.count}}</span></i>
+            </button>
+        </form>
+        <form method="POST" action="{% url 'dislike' post.pk %}">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.path }}">
+            <button type="submit" class="btn btn-transparent">
+                <i class="far fa-thumbs-down">&nbsp;<span>{{post.dislikes.all.count}}</span></i>
+            </button>
+        </form>
+        <a class="btn btn-transparent" href="{% url 'post-detail' post.pk %}"><i class="far fa-comment"></i></a>
+        {% if request.user == post.author %}
+        <a class="btn btn-transparent" href="{% url 'post-delete' post.pk %}"><i class="fa fa-trash"></i></a>
+        <a class="btn btn-transparent" href="{% url 'post-edit' post.pk %}"><i class="fa fa-pencil"></i></a>
+        {% endif %}
+    </div>
     </div>
   </div>
   {% endfor %}
