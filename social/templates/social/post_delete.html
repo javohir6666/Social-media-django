@@ -1,0 +1,30 @@
+{% extends 'landing/base.html' %}
+{% block content %}
+<div class="container">
+    <div class="row mt-5">
+        <div class="col-md-5 col-sm-6">
+            <a href="{% url 'post-detail' object.pk %}" class="btn btn-warning"><i class="fas fa-backward"></i>&nbsp;Back to Post</a>
+        </div>
+    </div>
+    <div class="row justify-content-center mt-3 mb-5">
+        <div class="col-md-5 col-sm-12 border-bottom">
+            {% if request.user == post.author %}
+            <div class="text-center mb-5">
+            <span class="alert alert-info"><i class="fa fa-user" aria-hidden="true"></i> Profile: <strong>{{post.author}}</strong></span>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <h5 class="alert alert-danger">Are you sure delete this post?</h5>
+            <div class="d-grid gap-2">
+                <button class="btn btn-danger mt-3">Delete</button>
+                <a href="{% url 'post-detail' object.pk %}"class="btn btn-success mt-3">No</a>
+            </div>
+
+            </form>
+            {% else %}
+            <span class="alert alert-danger" role="alert"><strong>Dear <a class="alert-link">{{post.author}}</a> you cannot delete this post :(</strong></span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock content %}

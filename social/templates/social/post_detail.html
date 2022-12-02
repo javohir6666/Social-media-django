@@ -1,0 +1,65 @@
+{% extends 'landing/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container">
+    <div class="row mt-5">
+        <div class="col-md-5 col-sm-6">
+            <a href="{% url 'post-list' %}" class="btn btn-warning"><i class="fas fa-backward"></i>&nbsp;Back to Feed</a>
+        </div>
+    </div>
+    <div class="row justify-content-center mt-3">
+        <div class="col-md-5 col-sm-12 border-bottom">
+            <span class="alert alert-info"><i class="fa fa-user-circle" aria-hidden="true"></i>&nbsp;<strong>{{post.author}}</strong></span>
+            <br>
+            <br>
+            <p class="alert alert-info">
+                {{post.body}}
+            </p>
+            <span class="text-muted"><i class="fas fa-clock"></i>&nbsp;{{post.created_at}}</span>
+        </div>
+    </div>
+    <hr><br>
+    <div class="alert alert-dark text-center"><span class=""><i class="fa fa-comment" aria-hidden="true"></i>&nbsp;Comments</span></div><br>
+    {% for comm in comments %}
+    <div class="row justify-content-center mt-3">
+
+        <!-- dropdown menu  -->
+            <div class="flex-shrink-0 dropdown d-flex justify-content-end">
+                <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fa fa-bars" aria-hidden="true"></i>
+                </a>
+                <ul class="dropdown-menu text-small shadow" style="">
+                    <li><a class="dropdown-item" href="{% url 'comment-delete' post.pk %}">Delete comment</a></li>
+                </ul>
+            </div>
+        <!-- END dropdown menu  -->
+
+        <div class="col-md-5 col-sm-12 border-bottom">
+            <span class="alert alert-danger"><i class="fa fa-user-circle" aria-hidden="true"></i>&nbsp;<strong>{{comm.author}}</strong></span>
+            <br>
+            <br>
+            <p class="alert alert-danger">
+                {{comm.comment}}
+            </p>
+            {% if request.user == comm.author %}
+            <a href="{% url 'comment-delete' post.pk %}"><i class="fa fa-trash" aria-hidden="true"></i></a>
+            {% endif %}
+            <span class="text-muted"><i class="fas fa-clock"></i>&nbsp;{{comm.created_at}}</span>
+        </div>
+    </div>
+    {% endfor %}
+    <div class="row justify-content-center mt-3 mb-5">
+        <div class="col-md-5 col-sm-12">
+            <form method="POST">
+                {% csrf_token %}
+                {{form|crispy}}
+            <div class="d-grid gap-2">
+                <button class="btn btn-outline-success mt-3">Add comment</button>
+            </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}
