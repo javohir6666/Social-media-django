@@ -29,9 +29,11 @@
                 <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="fa fa-bars" aria-hidden="true"></i>
                 </a>
+                {% if request.user == comm.author%}
                 <ul class="dropdown-menu text-small shadow" style="">
                     <li><a class="dropdown-item" href="{% url 'comment-delete' post.pk comm.pk  %}">Delete comment</a></li>
                 </ul>
+                {% endif %}
             </div>
         <!-- END dropdown menu  -->
 

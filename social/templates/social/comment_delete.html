@@ -3,7 +3,7 @@
 <div class="container">
     <div class="row mt-5">
         <div class="col-md-5 col-sm-6">
-            <a href="{% url 'post-detail' object.pk %}" class="btn btn-warning"><i class="fas fa-comment"></i>&nbsp;Back to Comment</a>
+            <a href="{% url 'post-detail' comment.pk %}" class="btn btn-warning"><i class="fas fa-comment"></i>&nbsp;Back to Comment</a>
         </div>
     </div>
     <div class="row justify-content-center mt-3 mb-5">
@@ -17,7 +17,7 @@
                 <h5>Are you sure?</h5>
             <div class="row d-grid gap-2">
                 <button class="col-6 btn btn-danger mt-3">Delete</button>
-                <a href="{% url 'post-detail' object.pk %}"class="col-6 btn btn-success mt-3">No</a>
+                <a href="{% url 'post-detail' comment.pk %}"class="col-6 btn btn-success mt-3">No</a>
             </div>
 
             </form>
