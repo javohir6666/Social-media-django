@@ -33,28 +33,26 @@
                 </p>
                 <p>{{post.body|safe|slice:50}}</p>
                 <div class="container">
-                <a style="margin-right:5px!important" class="item margin-bottom-15" href="{% url 'post-detail' post.pk %}"><i class="fa-solid fa-comment"></i></a>
-                <a style="margin-right:5px!important" class="item" href="#"><i class="fa-solid fa-thumbs-up"></i></a>
-                <a style="margin-right:5px!important" class="item" href="#"><i class="fa-solid fa-share-from-square"></i></a>
-                {% if request.user == post.author %}
-                <a style="margin-right:5px!important" class="item" href="{% url 'post-delete' post.pk %}"><i class="fa fa-trash" aria-hidden="true"></i></a>
-                <a style="margin-right:5px!important" class="item" href="{% url 'post-edit' post.pk %}"><i class="fa fa-pencil" aria-hidden="true"></i></a>
-                {% endif %}
                 <div class="d-flex flex-row">
                     <form method="POST" action="{% url 'like' post.pk %}">
                         {% csrf_token %}
                         <input type="hidden" name="next" value="{{ request.path }}">
                         <button type="submit" class="btn btn-transparent">
-                            <i class="far fa-thumbs-up"></i>
+                            <i class="far fa-thumbs-up">&nbsp;<span>{{post.like.all.count}}</span></i>
                         </button>
                     </form>
                     <form method="POST" action="{% url 'dislike' post.pk %}">
                         {% csrf_token %}
                         <input type="hidden" name="next" value="{{ request.path }}">
                         <button type="submit" class="btn btn-transparent">
-                            <i class="far fa-thumbs-down"></i>
+                            <i class="far fa-thumbs-down">&nbsp;<span>{{post.dislikes.all.count}}</span></i>
                         </button>
                     </form>
+                    <a class="btn btn-transparent" href="{% url 'post-detail' post.pk %}"><i class="far fa-comment"></i></a>
+                    {% if request.user == post.author %}
+                    <a class="btn btn-transparent" href="{% url 'post-delete' post.pk %}"><i class="fa fa-trash"></i></a>
+                    <a class="btn btn-transparent" href="{% url 'post-edit' post.pk %}"><i class="fa fa-pencil"></i></a>
+                    {% endif %}
                 </div>
             </div>
             </div>

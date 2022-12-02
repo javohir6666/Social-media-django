@@ -16,8 +16,9 @@ class PostListView(LoginRequiredMixin, View):
         }
         
         return render(request, 'social/post_list.html', context)
-    def post(self,request, *args, **kwargs):
+    def post(self,request, pk, *args, **kwargs):
         posts = Post.objects.all().order_by('-created_at')
+        comments = Comment.objects.filter(pk=pk)
         form = PostForm(request.POST)
         
         if form.is_valid():
@@ -27,7 +28,8 @@ class PostListView(LoginRequiredMixin, View):
         
         context = {
             'post_list':posts,
-            'form' : form
+            'form' : form,
+            'comments' : comments
         }
         
         return render(request, 'social/post_list.html', context)
