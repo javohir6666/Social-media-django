@@ -1,10 +1,11 @@
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from .models import Post, Comment
+from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.views import View
 from django.views.generic.edit import UpdateView, DeleteView
 from .forms import PostForm, CommentForm
-class PostListView(View):
+class PostListView(LoginRequiredMixin, View):
     def get(self,request, *args, **kwargs):
         posts = Post.objects.all().order_by('-created_at')
         form = PostForm()
@@ -30,7 +31,7 @@ class PostListView(View):
         
         return render(request, 'social/post_list.html', context)
     
-class PostDetailView(View):
+class PostDetailView(LoginRequiredMixin, View):
     def get(self,request, pk, *args, **kwargs):
         post = Post.objects.get(pk=pk)
         form = CommentForm()
@@ -60,23 +61,35 @@ class PostDetailView(View):
         return render(request, 'social/post_detail.html', context)
     
 
-class PostEditView(UpdateView):
+class PostEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Post
     fields = ['body']
     template_name = 'social/post_edit.html'
     def get_success_url(self):
         pk = self.kwargs['pk']
         return reverse_lazy('post-detail', kwargs = {'pk':pk})
+
+    def text_func(self):
+        post = self.get_object()
+        return self.request.user == post.author
     
-class PostDeleteView(DeleteView):
+class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
     template_name = 'social/post_delete.html'
     success_url = reverse_lazy('post-list')
+    
+    def text_func(self):
+        post = self.get_object()
+        return self.request.user == post.author
 
-class CommentDeleteView(DeleteView):
+class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Comment
     template_name = 'social/comment_delete.html'
     
     def get_success_url(self):
         pk = self.kwargs['pk']
         return reverse_lazy('post-detail', kwargs ={'pk':pk})
+    
+    def text_func(self):
+        post = self.get_object()
+        return self.request.user == post.author
