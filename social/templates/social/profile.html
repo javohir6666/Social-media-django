@@ -49,7 +49,7 @@
       <hr>
       <!-- Start Followers  -->
       <div class="row d-flex mb-3">
-        <p><span class="text-muted"><i class="fa fa-user-plus"></i>&nbsp;Followers: </span>{{number_of_followers}}</p>
+        <a href="{% url 'list-followers' profile.pk %}" class="post-link text-decoration-none mb-3 border-color-black"><span class="text-muted"><i class="fa fa-user-plus"></i>&nbsp;Followers: </span>{{number_of_followers}}</a>
         {% if user == request.user %}
         {% for follower in followers %}<p> {{follower.profile.user.username}} </p>{% endfor %}
         {% else %}

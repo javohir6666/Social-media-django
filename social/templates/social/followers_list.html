@@ -1,0 +1,57 @@
+{% extends 'landing/base.html' %} 
+{% block content %}
+<div class="container mt-5">
+    <div class="row mt-5">
+        <div class="col-md-3 col-sm-6">
+            <a href="{% url 'profile' profile.pk %}" class="btn btn-light">Back to Profile</a>
+        </div>
+    </div>
+
+
+    <div class="row justify-content-center mt-3">
+        <div class="alert alert-danger col-md-5 col-sm-12">
+            {% if profile.name %}
+            <h3>Followers for {{profile.name}}</h3>
+            {% else %}
+            <h3>Followers for @{{profile.user.username}}</h3>
+            {% endif %}
+        </div>
+    </div>
+
+    {% for follower in followers %}
+    <div class="row justify-content-center mt-3">
+        <div class="d-grid col-md-5 col-sm-12 border-bottom position-relative shadow">
+            <div class="d-flex profile-image">
+                <img src="{{follower.profile.picture.url}}" class="rounded-circle" width="50" height="50" alt="{{follower.user}}"
+                    style="margin-bottom: 5px" />
+                <div class="mt-2 profile-name">
+                    <p><b>{{profile.name}}</b></p>
+                </div>
+                <div class="d-flex text-end" style="margin-left: auto">
+                    <p class="mt-2">
+                        <a href="{% url 'profile' follower.profile.pk %}" style="text-decoration: none" class="text-primary">
+                            <i class="fa fa-at" aria-hidden="true"></i>
+                            {{follower.username}}
+                        </a>
+                    </p>
+                </div>
+            </div>
+            <div class="d-flex mt-2" style="margin-left: 15px">
+                {% if profile.location %}
+                <p class="text-muted profile-location">
+                    <i class="fa fa-location-arrow" aria-hidden="true"></i>
+                    {{ profile.location }}
+                </p>
+                {% endif %}
+                <p class="text-end followers" style="margin-left: auto">
+                    <i class="fa fa-user-plus" aria-hidden="true"></i>
+                    Followers: {{profile.followers.all.count}}
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+
+</div>
+{% endblock content %}

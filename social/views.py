@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from .models import Post, Comment, UserProfile
@@ -8,7 +9,10 @@ from django.views.generic.edit import UpdateView, DeleteView
 from .forms import PostForm, CommentForm
 class PostListView(LoginRequiredMixin, View):
     def get(self,request, *args, **kwargs):
-        posts = Post.objects.all().order_by('-created_at')
+        logged_in_user = request.user
+        posts = Post.objects.filter(
+            author__profile__followers__in = [logged_in_user.id]
+            ).order_by('-created_at')
         form = PostForm()
         context = {
             'post_list':posts,
@@ -99,6 +103,19 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def test_func(self):
         post = self.get_object()
         return self.request.user == post.author
+
+class CommentReplyView(LoginRequiredMixin, View):
+    def post(self, request, post_pk, pk, *args, **kwargs):
+        post = Post.objects.get(pk=post_pk)
+        parent_comment = Comment.objects.get(pk=pk)
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            new_comment = form.save(commit=False)
+            new_comment.author = request.user
+            new_comment.post = post
+            new_comment.parent = parent_comment
+            new_comment.save()
+        return redirect('post-detail', pk=post_pk)
 
 class ProfileView(View):
     def get(self, request, pk, *args, **kwargs):
@@ -206,3 +223,82 @@ class Dislike(LoginRequiredMixin, View):
             post.dislikes.remove(request.user)
         next = request.POST.get('next', '/')
         return HttpResponseRedirect(next)
+    
+
+class CommentAddLike(LoginRequiredMixin,View):
+    def post(self, request, pk, *args, **kwargs):
+        comment = Comment.objects.get(pk=pk)
+        
+        is_dislike = False
+        
+        for dislike in comment.dislikes.all():
+            if dislike == request.user:
+                is_dislike = True
+                break
+        if  is_dislike:
+            comment.dislikes.remove(request.user)
+            
+        is_like = False
+        
+        for like in comment.like.all():
+            if like == request.user:
+                is_like = True
+                break
+        if not is_like:
+            comment.like.add(request.user)
+        if is_like:
+            comment.like.remove(request.user)
+        next = request.POST.get('next', '/')
+        return HttpResponseRedirect(next)
+
+class CommentDislike(LoginRequiredMixin, View):
+    def post(self, request, pk, *args, **kwargs):
+        comment = Comment.objects.get(pk=pk)
+        
+        is_like = False
+        
+        for like in comment.like.all():
+            if like == request.user:
+                is_like = True
+                break
+        
+        if is_like:
+            comment.like.remove(request.user)
+
+        is_dislike = False
+        
+        for dislike in comment.dislikes.all():
+            if dislike == request.user:
+                is_dislike = True
+                break
+        if not is_dislike:
+            comment.dislikes.add(request.user)
+        if is_dislike:
+            comment.dislikes.remove(request.user)
+        next = request.POST.get('next', '/')
+        return HttpResponseRedirect(next)
+    
+class UserSearch(View):
+    def get(self, request, *args, **kwargs):
+        query = self.request.GET.get('query')
+        
+        profile_list = UserProfile.objects.filter(
+            Q(user__username__icontains=query)
+        )
+        
+        context = {
+            'profile_list': profile_list,
+        }
+        
+        return render(request, 'social/search.html', context)
+    
+class ListFollowers(View):
+    def get(self, request, pk, *args, **kwargs):
+        profile = UserProfile.objects.get(pk=pk)
+        followers = profile.followers.all()
+        
+        context = {
+            'profile': profile,
+            'followers': followers,
+        }
+        return render(request, 'social/followers_list.html', context)
