@@ -44,3 +44,12 @@ def create_user_profile(sender, instance, created, **kwargs):
     except ObjectDoesNotExist:
         UserProfile.objects.create(user=instance)
 
+class Notification(models.Model):
+    notification_type = models.IntegerField()
+    to_user = models.ForeignKey(User, related_name = 'notification_to', on_delete=models.CASCADE, null=True)
+    from_user = models.ForeignKey(User, related_name = 'notification_from', on_delete=models.CASCADE, null=True)
+    post = models.ForeignKey(Post, blank=True, related_name='+', on_delete=models.CASCADE, null=True)
+    comment = models.ForeignKey(Comment, blank=True, related_name='+', on_delete=models.CASCADE, null=True)
+    date = models.DateTimeField(auto_now_add=True)
+    user_has_seen = models.BooleanField(default=False)
+    
